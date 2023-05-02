@@ -6,18 +6,18 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 struct ButtonStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .frame(width: 300)
-            .padding(8)
-            .font(.custom("Bangers-Regular", size: 33))
-            .background(Color("color1"))
-            .foregroundColor(Color("color2"))
-            .shadow(color: .black, radius: 5)
-            .cornerRadius(11)
-            .shadow(color: .white,radius: 6)
+            .frame(width: 270)
+            .padding()
+            .font(.custom("RubikMonoOne-Regular", size: 25))
+            .background(Color("color2"))
+            .foregroundColor(Color("color1"))
+            .cornerRadius(12)
+            .shadow(color: .black, radius: 6)
     }
 }
 
@@ -27,56 +27,69 @@ extension View {
     }
 }
 
+var player :  AVAudioPlayer!
+
 struct ContentView: View {
     
-    @State private var isMusicOn = true
+    @State var isMusicOn = false //true
+    
+    init() {
+        isMusicOn ? playSound(sound: "top-gear", type: "mp3") : audioPlayer?.stop()
+    }
     
     var body: some View {
         NavigationStack {
             ZStack {
-                LinearGradient(gradient: Gradient(colors: [Color("color1"), Color("color2")]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+                
+                LinearGradient(gradient: Gradient(colors: [Color("color1"), Color("color2")]), startPoint: .top, endPoint: .bottom)
+                    .ignoresSafeArea()
                 
                 Image("geek")
-                    .padding(.top, -450)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 530, height: 530)
+                    .padding(.top, -440)
                 
                 VStack {
                     Image("img")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 350, height: 350)
+                        .frame(width: 320, height: 320)
                         .shadow(color: .black, radius: 20)
+                        .padding(.top, 90)
                     
-                    VStack(spacing: 25) {
-                    
+                    VStack(spacing: 20) {
                         NavigationLink {
-                            QuestionsView()
+                            QuestionsView(isMusicOn: $isMusicOn)
                         } label: {
-                            Text("Iniciar Quiz")
+                            Text("Iniciar")
                                 .buttonStyle()
                         }
-
-                        Button("Pontuação") {}
-                            .buttonStyle()
                         
                         NavigationLink {
-                            RulesView()
+                            AboutView(isMusicOn: $isMusicOn)
                         } label: {
-                            Text("Regras")
+                            Text("Sobre")
                                 .buttonStyle()
                         }
                     }
+                    
                 }
-                .padding(.top, 160)
             }
             .toolbar {
-                  ToolbarItemGroup(placement: .navigationBarTrailing) {
-                        Button {
-                            isMusicOn.toggle()
-                        } label: {
-                            Text("Music")
-                            Label("Play", systemImage: isMusicOn ? "pause.circle" : "play.circle")
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    Button {
+                        if isMusicOn == true {
+                            audioPlayer?.pause()
+                        } else {
+                            audioPlayer?.play()
                         }
-                   }
+                        isMusicOn.toggle()
+                    } label: {
+                        Text("Music")
+                        Label("Play", systemImage: isMusicOn ? "pause.circle" : "play.circle")
+                    }
+                }
             }
         }
     }

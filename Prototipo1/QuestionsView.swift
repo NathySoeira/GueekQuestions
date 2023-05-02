@@ -6,18 +6,18 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 struct ButtonStyleQuestions: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .frame(width: 300, alignment: .leading)
-            .padding(8)
-            .font(.custom("Bangers-Regular", size: 33))
-            .background(Color("color1"))
-            .foregroundColor(Color("color2"))
-            .shadow(color: .black, radius: 5)
-            .cornerRadius(11)
-            .shadow(color: .white,radius: 6)
+            .frame(width: 270, height: 45, alignment: .leading)
+            .padding()
+            .font(.custom("RubikMonoOne-Regular", size: 17))
+            .background(Color("color2"))
+            .foregroundColor(Color("color1"))
+            .cornerRadius(12)
+            .shadow(color: .black, radius: 6)
     }
 }
 
@@ -30,44 +30,63 @@ extension View {
 
 struct QuestionsView: View {
     
-    @State private var isMusicOn = true
+    @Binding var isMusicOn: Bool
+    
+    @State private var currentQuestionIndex = 0
+    @State private var score = 0
+        
+    private var currentQuestion: Questions {
+        questions[currentQuestionIndex]
+    }
+    
+    private func checkAnswer(_ answerIndex: Int) {
+        let answer = currentQuestion.alternatives[answerIndex]
+        if answer.correct {
+            score += 1
+        }
+        
+        if currentQuestionIndex < questions.count - 1 {
+            currentQuestionIndex += 1
+        }
+    }
     
     var body: some View {
         NavigationStack {
             ZStack {
                 LinearGradient(gradient: Gradient(colors: [Color("color1"), Color("color2")]), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
                 
-                VStack(spacing: 30) {
-                    //                ForEach(questions.question.indices, id: \.self) { index in
-                    //                    Text(questions[index])
-                    //                }w
-                    Text(questions[0].question)
+                VStack(spacing: 10) {
+
+                    Text(currentQuestion.question)
                         .multilineTextAlignment(.center)
                         .frame(height: 110)
                         .foregroundColor(.white)
-                        .font(.system(size: 30))
+                        .font(.custom("RubikMonoOne-Regular", size: 17))
                         .padding()
                     
-                    Button("a) Tolkien"){}
+                    ForEach(currentQuestion.alternatives.indices, id: \.self) { index in
+                        Button("\(index+1)) \(currentQuestion.alternatives[index].text)") {
+                            checkAnswer(index)
+                        }
                         .buttonStyleQuestions()
-                    Button("b) Boninho"){}
-                        .buttonStyleQuestions()
-                    Button("c) Emílio Surita"){}
-                        .buttonStyleQuestions()
-                    Button("d) Clarice Lispector"){}
-                        .buttonStyleQuestions()
-                    Button("e) BRKs Edu"){}
-                        .buttonStyleQuestions()
+                    }
                     
-                    Text("Score: 0")
+                    Text("Score: \(score)")
                         .foregroundColor(Color("color1"))
-                        .font(.system(size: 30))
-                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        .font(.custom("RubikMonoOne-Regular", size: 17))
+                        .padding(22)
+                        .padding(.bottom, 20)
                 }
             }
             .toolbar {
                   ToolbarItemGroup(placement: .navigationBarTrailing) {
                         Button {
+                            if isMusicOn == true {
+                                audioPlayer?.pause()
+                                } else {
+                                    audioPlayer?.play()
+                                }
                             isMusicOn.toggle()
                         } label: {
                             Text("Music")
@@ -82,6 +101,6 @@ struct QuestionsView: View {
 
 struct QuestionsView_Previews: PreviewProvider {
     static var previews: some View {
-        QuestionsView()
+        QuestionsView(isMusicOn: .constant(true))
     }
 }

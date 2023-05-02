@@ -8,7 +8,7 @@
 import SwiftUI
 import AVFoundation
 
-struct RulesView: View {
+struct AboutView: View {
     
     @Binding var isMusicOn: Bool
     
@@ -66,8 +66,8 @@ struct RulesView: View {
     
 }
 
-struct RulesView_Previews: PreviewProvider {
+struct About_Previews: PreviewProvider {
     static var previews: some View {
-        RulesView(isMusicOn: .constant(true))
+        AboutView(isMusicOn: .constant(true))
     }
 }
